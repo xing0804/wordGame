@@ -48,7 +48,7 @@
         .setbox {
             height: 200px;
             width: 300px;
-            background-color: palegreen;
+            background: rgba(152, 251, 152, .6);
             margin: 0 auto;
             margin-top: 200px;
             border-radius: 20px;
@@ -66,6 +66,50 @@
             position: fixed;
             right: 100px;
             bottom: 100px;
+
+        }
+
+        .progress {
+            width: 300px;
+            height: 50px;
+            /* margin-left: 98px; */
+            position: fixed;
+            top: 33%;
+            left: 8%;
+        }
+
+        .grade {
+            height: 100px;
+            width: 100px;
+            border-radius: 50%;
+            background-image: linear-gradient(#FFAA7D, #FF5031);
+            /* margin-top: 10px;
+            margin-left: 200px; */
+            text-align: center;
+            position: fixed;
+            top: 40%;
+            left: 15%;
+        }
+
+        .grade div {
+            line-height: 50px;
+            color: #ffffff;
+            font-size: 20px;
+        }
+
+        .life {
+            font-size: 20px;
+            color: seagreen;
+            position: fixed;
+            top: 30%;
+            left: 16%;
+        }
+
+        .suspend {
+            width: 83px;
+            position: fixed;
+            right: 225px;
+            bottom: 107px;
         }
     </style>
 
@@ -75,6 +119,13 @@
     <img src="img/start.png" alt="" class="startimg">
     <img src="img/stop.png" alt="" class="stopbtn">
     <img src="img/setting.png" alt="" class="setting">
+    <div class="life">生命值</div>
+    <meter max="100" min="0" high="100" low="40" value="100" class="progress"></meter>
+    <div class="grade">
+        <div>分数</div>
+        <div class="num">0</div>
+    </div>
+    <img src="img/zanting.png" alt="" class="suspend">
     <div class="mask">
         <div class="setbox">
             <span style="color: purple;margin-left: 50px;">困难度：</span>
@@ -87,14 +138,18 @@
             <span style="color: purple;margin-left: 50px;">速度：</span>
             <form action="#" style="display: inline-block;
             margin-top: 20px;">
-                <input type="radio" name="fast" value="1000">慢
-                <input type="radio" name="fast" value="100" checked="checked">快
+                <input type="radio" name="fast" value="3" checked="checked">慢
+                <input type="radio" name="fast" value="8">快
                 <input type="radio" name="fast" value="20">特快
             </form>
         </div>
         <img src="img/queding.png" alt="" class="surebtn">
 
     </div>
+    <!-- <div class="end">
+        <div>游戏结束！是否继续</div>
+    </div> -->
+
 
 
 
@@ -119,7 +174,7 @@
             for (var i = 0; i < current.length; i++) {
                 var div = document.createElement("div");
                 div.innerHTML = current[i];
-                div.style.cssText = `position:absolute;left:${(document.documentElement.clientWidth - 100) * Math.random()}px;top:${40 * Math.random()}px;font-size:${50 + 10 * Math.random()}px;`;
+                div.style.cssText = `position:absolute;left:${(document.documentElement.clientWidth - 100) * Math.random()}px;top:${40 * Math.random()}px;font-size:${30 + 10 * Math.random()}px;background:rgb(${Math.floor(Math.random() * 255)},${Math.floor(Math.random() * 255)},${Math.floor(Math.random() * 255)});border-radius: 50%;height:50px;width:50px;color:#fff;text-align:center;line-height:50px`;
                 document.body.appendChild(div);
 
                 divs.push(div);
@@ -137,10 +192,10 @@
 
         //给设置按钮添加事件
         var setting = document.querySelector(".setting");
-        var num = 0;
+        var num1 = 0;
         setting.onclick = function () {
-            num++;
-            if (num % 2 == 0) {
+            num1++;
+            if (num1 % 2 == 0) {
                 mask.style.display = "none";
             } else {
                 mask.style.display = "block";
@@ -148,79 +203,128 @@
         }
 
 
-        var dval = 0;
-        var fval = 0;
-        //给开始按钮添加点击事件
-        var startBtn = document.querySelector('.startimg');
-        startBtn.onclick = function () {
-            create(dval);
-            startBtn.style.display = "none";
-        }
 
-        //给确定按钮安装事件
-        var surebtn = document.querySelector(".surebtn");
-        surebtn.onclick = function () {
 
-            mask.style.display = "none";
-            //获取难度级别
+        //获取难度级别
+        function difficulty() {
             var dradio = document.getElementsByName("difficulty");
-
+            var dval = 0;
             for (var i = 0; i < dradio.length; i++) {
                 if (dradio[i].checked) {
                     dval = parseInt(dradio[i].value);
                     // console.log(dval);
                 }
             }
+            return dval;
+        }
 
-            //获取速度级别
+
+        //获取速度级别
+        function fast() {
             var fradio = document.getElementsByName("fast");
-
+            var fval = 0;
             for (var i = 0; i < fradio.length; i++) {
                 if (fradio[i].checked) {
                     fval = parseInt(fradio[i].value);
                     // console.log(fval);
                 }
             }
+            return fval;
+        }
+
+        //获取分数
+        var num = document.querySelector(".num");
+
+        //获取进度条
+        var progress = document.querySelector(".progress");
+
+        //获取暂停按钮
+        var suspend=document.querySelector(".suspend");
+
+
+        //给确定按钮安装事件
+        var surebtn = document.querySelector(".surebtn");
+        var startBtn = document.querySelector('.startimg');
+        var stopbtn = document.querySelector(".stopbtn");
+        surebtn.onclick = function () {
+
+            mask.style.display = "none";
+
+            var dval = difficulty();
+            var fval = fast();
 
             console.log(dval, fval);
+            //给开始按钮添加点击事件
+
+            startBtn.onclick = function () {
+                create(dval);
+                startBtn.style.display = "none";
+            }
+            //获取浏览器高度
+            // var high = document.documentElement.clientHeight;
+
 
             // var speed = 5;
             setInterval(function () {
                 for (var i = 0; i < divs.length; i++) {
                     if (divs[i].offsetTop > 550 - startTop[i]) {
                         divs[i].style.top = 0;
+                        //进度条减少
+                        progress.value = parseInt(progress.value) - 20;
+                        if (progress.value == 0) {
+                            alert("游戏结束！");
+                            for (var i = 0; i < divs.length; i++) {
+                                document.body.removeChild(divs[i]);
+                            }
+                            divs.splice(0, dval);
+                            num.innerHTML = 0;
+                            startBtn.style.display = "block";
+                            num.innerHTML = 0;
+                            progress.value = 100;
+                        }
                     } else {
-                        divs[i].style.top = divs[i].offsetTop + 5 + "px";
+                        divs[i].style.top = divs[i].offsetTop + fval + "px";
                     }
                 }
-            }, fval);
+            }, 50);
 
+            //按下键盘事件
+            document.onkeydown = function (ev) {
+                var letter = String.fromCharCode(ev.keyCode);
+                for (var i = 0; i < divs.length; i++) {
+                    if (divs[i].innerHTML == letter) {
+                        document.body.removeChild(divs[i]);
+                        divs.splice(i, 1);
+                        create(1);
+                        num.innerHTML = parseInt(num.innerHTML) + 2;
+                        break;
+                    }
+                }
+            };
 
-        }
-
-
-
-        document.onkeydown = function (ev) {
-            var letter = String.fromCharCode(ev.keyCode);
-            for (var i = 0; i < divs.length; i++) {
-                if (divs[i].innerHTML == letter) {
-                    document.body.removeChild(divs[i]);
-                    divs.splice(i, 1);
-                    create(1);
-
-                    break;
+            //暂停按钮事件
+            var num2=0;
+            suspend.onclick=function(){
+                num2++;
+                if(num2%2==0){
+                    fval=fast();
+                }else{
+                    fval=0;
                 }
             }
-        };
-        //停止按钮事件
-        var stopbtn = document.querySelector(".stopbtn");
-        stopbtn.onclick = function () {
-            for (var i = 0; i < divs.length; i++) {
-                document.body.removeChild(divs[i]);
+
+            //停止按钮事件
+            stopbtn.onclick = function () {
+                for (var i = 0; i < divs.length; i++) {
+                    document.body.removeChild(divs[i]);
+                }
+                divs.splice(0, dval);
+                num.innerHTML = 0;
+                progress.value = 100;
+                startBtn.style.display = "block";
             }
-            divs.splice(0, dval);
-            startBtn.style.display = "block";
         }
+
 
 
 
